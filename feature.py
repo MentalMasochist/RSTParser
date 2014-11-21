@@ -64,10 +64,13 @@ class FeatureGenerator(object):
         features = []
         if self.stackspan1 is not None:
             # Beginning and End Word of EDU
-            stackspan1_begin_word, stackspan1_end_word = self.get_begin_end_word(self.stackspan1.text)
-            features.append(('StackSpan1', 'Begin-Word', stackspan1_begin_word))
-            features.append(('StackSpan1', 'End-Word', stackspan1_end_word))
-            
+            stackspan1_ls_token = self.get_ls_token(self.stackspan1.text)
+            features.append(('StackSpan1', 'Begin-Word', stackspan1_ls_token[0]))
+            features.append(('StackSpan1', 'End-Word', stackspan1_ls_token[-1]))
+            # Length of EDU in tokens
+            features.append(('StackSpan1', 'Len', len(stackspan1_ls_token)))
+
+
             # Span Length wrt EDUs
             features.append(('StackSpan1','Length-EDU',self.stackspan1.eduspan[1]-self.stackspan1.eduspan[0]+1))
             # Distance to the beginning of the document wrt EDUs
@@ -77,9 +80,11 @@ class FeatureGenerator(object):
                 features.append(('StackSpan1','Distance-To-End',self.doclen-self.stackspan1.eduspan[1]))
         if self.stackspan2 is not None:
             # Beginning and End Word of EDU
-            stackspan2_begin_word, stackspan2_end_word = self.get_begin_end_word(self.stackspan2.text)
-            features.append(('StackSpan2', 'Begin-Word', stackspan2_begin_word))
-            features.append(('StackSpan2', 'End-Word', stackspan2_end_word))
+            stackspan2_ls_token = self.get_ls_token(self.stackspan2.text)
+            features.append(('StackSpan2', 'Begin-Word', stackspan2_ls_token[0]))
+            features.append(('StackSpan2', 'End-Word', stackspan2_ls_token[-1]))
+            # Length of EDU in tokens
+            features.append(('StackSpan2', 'Len', len(stackspan2_ls_token)))
 
             features.append(('StackSpan2','Length-EDU',self.stackspan2.eduspan[1]-self.stackspan2.eduspan[0]+1))
             features.append(('StackSpan2','Distance-To-Begin',self.stackspan2.eduspan[0]))
@@ -87,9 +92,11 @@ class FeatureGenerator(object):
                 features.append(('StackSpan2','Distance-To-End',self.doclen-self.stackspan2.eduspan[1]))
         if self.queuespan1 is not None:
             # Beginning and End Word of EDU
-            queuespan1_begin_word, queuespan1_end_word = self.get_begin_end_word(self.queuespan1.text)
-            features.append(('QueueSpan1', 'Begin-Word', queuespan1_begin_word))
-            features.append(('QueueSpan1', 'End-Word', queuespan1_end_word))
+            queuespan1_ls_token = self.get_ls_token(self.queuespan1.text)
+            features.append(('QueueSpan1', 'Begin-Word', queuespan1_ls_token[0]))
+            features.append(('QueueSpan1', 'End-Word', queuespan1_ls_token[-1]))
+            # Length of EDU in tokens
+            features.append(('QueueSpan1', 'Len', len(queuespan1_ls_token)))
 
             features.append(('QueueSpan1','Distance-To-Begin',self.queuespan1.eduspan[0]))
         # Should include some features about the nucleus EDU
@@ -126,12 +133,12 @@ class FeatureGenerator(object):
         for feat in features:
             yield feat
             
-        
-    def get_begin_end_word(self, text):
-        """ returns Beginning and Ending word from a span of text
+
+    def get_ls_token(self, text):
+        """ returns a list of tokens from a text
         """
         text = text.replace('<p>','')                     # removing ending markup
         text = text.translate(None, string.punctuation)   # removing punctuation
         ls_text = word_tokenize(text)                     # tokenize words
-        return ls_text[0], ls_text[-1]                    # return BEGIN, END word
-        
+        return ls_text
+
