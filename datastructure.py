@@ -13,6 +13,10 @@ class SpanNode(object):
         :param prop: property of this span wrt its parent node.
                      Only two possible values: Nucleus or Satellite
         """
+        # dependecy parse head set
+        self.dep = None
+        # part-of-speeches of the words in the span
+        self.pos = None
         # Text of this span / Discourse relation
         self.text, self.relation = None, None
         # EDU span / Nucleus span (begin, end) index

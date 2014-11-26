@@ -18,10 +18,11 @@ from buildtree import *
 from feature import FeatureGenerator
 from parser import SRParser
 from util import extractrelation
+from ast import literal_eval
 
 
 class RSTTree(object):
-    def __init__(self, fname=None, tree=None):
+    def __init__(self, fname=None, tree=None, pos_fname=None, dep_fname=None):
         """ Initialization
 
         :type text: string
@@ -30,13 +31,27 @@ class RSTTree(object):
         self.fname = fname
         self.binary = True
         self.tree = tree
+        self.d_pos = None if (pos_fname == None) else  self.get_d_pos(pos_fname)
+        self.d_dep = None if (dep_fname == None) else  self.get_d_dep(dep_fname)
+
+
+    def get_d_pos(self, pos_fname):
+        with open(pos_fname,'rb') as pos_f:
+            d_pos = literal_eval(pos_f.read())
+        return d_pos
+
+
+    def get_d_dep(self, dep_fname):
+        with open(dep_fname,'rb') as dep_f:
+            d_dep = literal_eval(dep_f.read())
+        return d_dep
 
 
     def build(self):
         """ Build BINARY RST tree
         """
         text = open(self.fname).read()
-        self.tree = buildtree(text)
+        self.tree = buildtree(text, self.d_pos, self.d_dep)
         self.tree = binarizetree(self.tree)
         self.tree = backprop(self.tree)
 

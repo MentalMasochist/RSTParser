@@ -6,8 +6,9 @@
 from model import ParsingModel
 from tree import RSTTree
 from evaluation import Metrics
+from ast import literal_eval
 
-def parse(pm, fedus):
+def parse(pm, fedus, d_pos, d_dep):
     """ Parse one document using the given parsing model
 
     :type pm: ParsingModel
@@ -20,7 +21,7 @@ def parse(pm, fedus):
         edus = fin.read().split('\n')
         if len(edus[-1]) == 0:
             edus.pop()
-    pred_rst = pm.sr_parse(edus)
+    pred_rst = pm.sr_parse(edus, d_pos, d_dep)
     return pred_rst
 
 
@@ -32,6 +33,22 @@ def writebrackets(fname, brackets):
         for item in brackets:
             fout.write(str(item) + '\n')
 
+
+def get_d_pos(pos_fname):
+    """ reads part-of-speach file into dict
+    """
+    with open(pos_fname,'rb') as pos_f:
+        d_pos = literal_eval(pos_f.read())
+    return d_pos
+
+
+def get_d_dep(dep_fname):
+    """ reads dependency head-set file into dict
+    """
+    with open(dep_fname,'rb') as dep_f:
+        d_dep = literal_eval(dep_f.read())
+    return d_dep
+   
 
 def evalparser(path='./examples', report=False):
     """ Test the parsing performance
@@ -57,7 +74,11 @@ def evalparser(path='./examples', report=False):
     for fedus in doclist:
         # ----------------------------------------
         # Parsing
-        pred_rst = parse(pm, fedus=fedus)
+        fpos = fedus + ".pos"
+        d_pos = get_d_pos(fpos)
+        fdep = fedus + ".dep"
+        d_dep = get_d_dep(fdep)
+        pred_rst = parse(pm, fedus=fedus, d_pos=d_pos, d_dep=d_dep)
         # Get brackets from parsing results
         pred_brackets = pred_rst.bracketing()
         fbrackets = fedus.replace('edus', 'brackets')

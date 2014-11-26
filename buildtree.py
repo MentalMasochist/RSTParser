@@ -129,12 +129,16 @@ def createnode(node, content):
             node.nucedu = c[1]
         elif c[0] == 'text':
             node.text = c[1]
+        elif c[0] == 'pos':
+            node.pos = c[1]
+        elif c[0] == 'dep':
+            node.dep = c[1]
         else:
             raise ValueError("Unrecognized property: {}".format(c[0]))
     return node
 
 
-def buildtree(text):
+def buildtree(text, d_pos, d_dep):
     """ Build tree from *.dis file
 
     :type text: string
@@ -183,6 +187,11 @@ def buildtree(text):
                 eduindex = int(content.pop(0))
                 checkcontent(label, content)
                 stack.append(('leaf', eduindex, eduindex))
+                if d_pos != None:
+                    # add pos tags
+                    stack.append(('pos',d_pos[str(eduindex)]))
+                if d_dep != None:
+                    stack.append(('dep',d_dep[str(eduindex)]))
             elif label == 'rel2par':
                 # Merge
                 relation = content.pop(0)
@@ -254,6 +263,10 @@ def backprop(tree):
             # Non-leaf node
             node.eduspan = __getspaninfo(node.lnode, node.rnode)
             node.text = __gettextinfo(node.lnode, node.rnode)
+            if (node.lnode.pos is not None) and (node.rnode.pos is not None):
+                node.pos = __getposinfo(node.lnode, node.rnode)
+            if (node.lnode.dep is not None) and (node.rnode.dep is not None):
+                node.dep = __getdepinfo(node.lnode, node.rnode)                
             if node.relation is None:
                 # If it is a new node
                 if node.prop == 'Root':
@@ -271,6 +284,34 @@ def backprop(tree):
             # Leaf node
             pass
     return treenodes[-1]
+
+
+def __getposinfo(lnode,rnode):
+    """ Get pos info for parent node
+
+    :type lnode,rnode: SpanNode instance
+    :param lnode,rnode: Left/Right children nodes
+    """
+    try:
+        pos = lnode.pos + rnode.pos
+    except TypeError:
+        print "***error: getposinfo()" 
+        exit()
+    return pos
+
+
+def __getdepinfo(lnode,rnode):
+    """ Get dep info for parent node
+
+    :type lnode,rnode: SpanNode instance
+    :param lnode,rnode: Left/Right children nodes
+    """
+    try:
+        dep = lnode.dep + rnode.dep
+    except TypeError:
+        print "***error: getdepinfo()" 
+        exit()
+    return dep
 
 
 def __getspaninfo(lnode, rnode):

@@ -43,7 +43,10 @@ class Data(object):
         """
         files = [os.path.join(path, fname) for fname in os.listdir(path) if fname.endswith('.dis')]
         for fname in files:
-            rst = RSTTree(fname=fname)
+            print fname
+            pos_fname = fname.replace('.dis','.edus.pos')
+            dep_fname = fname.replace('.dis','.edus.dep')
+            rst = RSTTree(fname=fname, pos_fname=pos_fname, dep_fname=dep_fname)
             rst.build()
             actionlist, samplelist = rst.generate_samples()
             self.actionlist += actionlist

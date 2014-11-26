@@ -69,8 +69,14 @@ class FeatureGenerator(object):
             features.append(('StackSpan1', 'End-Word', stackspan1_ls_token[-1]))
             # Length of EDU in tokens
             features.append(('StackSpan1', 'Len', len(stackspan1_ls_token)))
-
-
+            # Beginning POS of EDU
+            features.append(('StackSpan1', 'Begin-Tag', self.stackspan1.pos[0]))
+            # Ending POS of EDU
+            features.append(('StackSpan1', 'End-Tag', self.stackspan1.pos[-1]))
+            # Dependency Head Words
+            if (len(self.stackspan1.dep) > 0):
+                for head_word in self.stackspan1.dep:
+                    features.append(('StackSpan1', 'Head-Words', head_word))
             # Span Length wrt EDUs
             features.append(('StackSpan1','Length-EDU',self.stackspan1.eduspan[1]-self.stackspan1.eduspan[0]+1))
             # Distance to the beginning of the document wrt EDUs
@@ -78,6 +84,7 @@ class FeatureGenerator(object):
             # Distance to the end of the document wrt EDUs
             if self.doclen is not None:
                 features.append(('StackSpan1','Distance-To-End',self.doclen-self.stackspan1.eduspan[1]))
+                
         if self.stackspan2 is not None:
             # Beginning and End Word of EDU
             stackspan2_ls_token = self.get_ls_token(self.stackspan2.text)
@@ -85,11 +92,22 @@ class FeatureGenerator(object):
             features.append(('StackSpan2', 'End-Word', stackspan2_ls_token[-1]))
             # Length of EDU in tokens
             features.append(('StackSpan2', 'Len', len(stackspan2_ls_token)))
-
+            # Distance between EDUs
+            if self.stackspan1 is not None:
+                features.append(('StackSpan2-StackSpan1','EDU-Dist',self.stackspan1.eduspan[0] - self.stackspan2.eduspan[1]))
+            # Beginning POS of EDU 
+            features.append(('StackSpan2', 'Begin-Tag', self.stackspan2.pos[0]))
+            # Ending POS of EDU
+            features.append(('StackSpan2', 'End-Tag', self.stackspan2.pos[-1]))
+            # Dependency Head Words
+            if (len(self.stackspan2.dep) > 0):
+                for head_word in self.stackspan2.dep:
+                    features.append(('StackSpan2', 'Head-Words', head_word))
             features.append(('StackSpan2','Length-EDU',self.stackspan2.eduspan[1]-self.stackspan2.eduspan[0]+1))
             features.append(('StackSpan2','Distance-To-Begin',self.stackspan2.eduspan[0]))
             if self.doclen is not None:
                 features.append(('StackSpan2','Distance-To-End',self.doclen-self.stackspan2.eduspan[1]))
+        
         if self.queuespan1 is not None:
             # Beginning and End Word of EDU
             queuespan1_ls_token = self.get_ls_token(self.queuespan1.text)
@@ -97,8 +115,21 @@ class FeatureGenerator(object):
             features.append(('QueueSpan1', 'End-Word', queuespan1_ls_token[-1]))
             # Length of EDU in tokens
             features.append(('QueueSpan1', 'Len', len(queuespan1_ls_token)))
-
+            # Beginning POS of EDU
+            features.append(('QueueSpan1', 'Begin-Tag', self.queuespan1.pos[0]))
+            # Ending POS of EDU
+            features.append(('QueueSpan1', 'End-Tag', self.queuespan1.pos[-1]))
+            # Dependency Head Words
+            if (len(self.queuespan1.dep) > 0):
+                for head_word in self.queuespan1.dep:
+                    features.append(('QueueSpan1', 'Head-Words', head_word))
+            # Distance between EDUs
+            if self.stackspan1 is not None:
+                features.append(('QueueSpan1-StackSpan1','EDU-Dist',self.queuespan1.eduspan[0] - self.stackspan1.eduspan[1] ))  #a
+            if self.doclen is not None:
+                features.append(('QueueSpan1','Distance-To-End',self.doclen-self.queuespan1.eduspan[1]))
             features.append(('QueueSpan1','Distance-To-Begin',self.queuespan1.eduspan[0]))
+
         # Should include some features about the nucleus EDU
         for feat in features:
             yield feat

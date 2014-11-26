@@ -29,7 +29,7 @@ class SRParser:
         self.Queue = queue
 
 
-    def init(self, texts):
+    def init(self, texts, d_pos, d_dep):
         """ Using text to initialize Queue
 
         :type texts: list of string
@@ -41,6 +41,8 @@ class SRParser:
             node.text = text
             node.eduspan, node.nucspan = (n, n), (n, n)
             node.nucedu = n
+            node.pos = d_pos[str(n)]
+            node.dep = d_dep[str(n)]
             self.Queue.append(node)
 
 
@@ -77,6 +79,10 @@ class SRParser:
             node.text = lnode.text + " " + rnode.text
             # EDU span
             node.eduspan = (lnode.eduspan[0],rnode.eduspan[1])
+            # POS lists
+            node.pos = lnode.pos + rnode.pos
+            # DEP head word sets
+            node.dep = lnode.dep + rnode.dep            
             # Nuc span / Nuc EDU
             if form == 'NN':
                 node.nucspan = (lnode.eduspan[0],rnode.eduspan[1])
